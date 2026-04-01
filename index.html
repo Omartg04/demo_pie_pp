@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PIE-PP · Plataforma de Inteligencia Electoral · Puerto Peñasco</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --azul-oscuro: #003a58;
+    --azul-medio:  #007cab;
+    --acento:      #00c0ff;
+    --alerta:      #e63946;
+    --verde:       #1a7a4a;
+    --texto:       #1a2535;
+    --muted:       #64748b;
+    --borde:       #e2e8f0;
+    --fondo:       #f8fafc;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #f0f4f8;
+    color: var(--texto);
+    min-height: 100vh;
+    padding: 40px 16px 60px;
+  }
+
+  /* ── FADE-IN ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  .anim { opacity: 0; }
+  .anim.visible {
+    animation: fadeUp 0.6s cubic-bezier(.22,.68,0,1.2) forwards;
+  }
+  .anim-delay-1.visible { animation-delay: 0.08s; }
+  .anim-delay-2.visible { animation-delay: 0.16s; }
+  .anim-delay-3.visible { animation-delay: 0.24s; }
+  .anim-delay-4.visible { animation-delay: 0.32s; }
+  .anim-delay-5.visible { animation-delay: 0.40s; }
+  .anim-delay-6.visible { animation-delay: 0.48s; }
+
+  /* ── PAGE ── */
+  .page {
+    background: #fff;
+    max-width: 820px;
+    margin: 0 auto;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 4px 40px rgba(0,58,88,0.13);
+  }
+
+  /* ── HEADER ── */
+  .header {
+    padding: 32px 44px 22px;
+    border-bottom: 2px solid var(--texto);
+  }
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }
+  .logo-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .logo-img {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  .logo-title {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--texto);
+    line-height: 1.15;
+  }
+  .logo-sub {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .propuesta {
+    text-align: right;
+  }
+  .propuesta-label {
+    font-size: 12px;
+    color: var(--azul-medio);
+    font-weight: 500;
+  }
+  .propuesta-nombre {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--azul-medio);
+    line-height: 1.3;
+  }
+  .intro-hook {
+    font-size: 13.5px;
+    color: var(--muted);
+  }
+  .intro-hook strong { color: var(--texto); font-weight: 600; }
+
+  /* ── BODY ── */
+  .body { padding: 28px 44px 36px; }
+
+  .intro-bold {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--texto);
+    line-height: 1.4;
+    margin-bottom: 10px;
+  }
+  .intro-body {
+    font-size: 13px;
+    color: #475569;
+    line-height: 1.7;
+    margin-bottom: 6px;
+  }
+  .tagline {
+    font-size: 13.5px;
+    font-weight: 700;
+    font-style: italic;
+    color: var(--texto);
+    text-align: center;
+    margin: 16px 0 22px;
+  }
+
+  /* ── 3 CARDS ── */
+  .three-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 26px;
+  }
+  .card {
+    border: 1.5px solid var(--azul-medio);
+    border-radius: 8px;
+    padding: 16px;
+    cursor: default;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,124,171,0.18);
+    border-color: var(--acento);
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--azul-medio);
+    margin-bottom: 8px;
+    line-height: 1.3;
+    transition: color 0.2s;
+  }
+  .card:hover .card-title { color: var(--azul-oscuro); }
+  .card-body {
+    font-size: 12px;
+    color: #475569;
+    line-height: 1.55;
+  }
+  /* expanded detail hidden by default, shown on hover */
+  .card-detail {
+    font-size: 11.5px;
+    color: var(--azul-oscuro);
+    border-top: 1px solid #e0f0f8;
+    margin-top: 10px;
+    padding-top: 8px;
+    line-height: 1.5;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.35s ease, opacity 0.3s ease, margin 0.3s ease, padding 0.3s ease;
+  }
+  .card:hover .card-detail {
+    max-height: 120px;
+    opacity: 1;
+  }
+
+  /* ── SECTION TITLE ── */
+  .section-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--azul-medio);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--borde);
+  }
+
+  /* ── MÓDULOS 2x2 ── */
+  .modulos-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 32px;
+    margin-bottom: 22px;
+  }
+  .modulo {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .mod-screen {
+    width: 82px;
+    min-width: 82px;
+    height: 58px;
+    background: #e8f4fb;
+    border: 1px solid #b8d9ed;
+    border-radius: 5px;
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .s-bar { height: 5px; border-radius: 2px; background: var(--azul-medio); }
+  .s-a   { background: var(--acento); width: 100%; }
+  .s-m   { width: 78%; opacity: 0.55; }
+  .s-s   { width: 55%; opacity: 0.38; }
+  .s-dots { display: flex; gap: 3px; margin-top: 2px; }
+  .s-dot  { width: 6px; height: 6px; border-radius: 50%; }
+  .s-r { background: var(--alerta); }
+  .s-b { background: var(--azul-medio); }
+  .s-g { background: var(--verde); }
+  .s-y { background: #d97706; }
+  .s-bars-mini { display: flex; align-items: flex-end; gap: 3px; margin-top: 4px; }
+  .s-bm { width: 10px; border-radius: 2px; background: var(--azul-medio); }
+
+  .mod-tag {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--azul-medio);
+    margin-bottom: 2px;
+  }
+  .mod-title {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--texto);
+    margin-bottom: 4px;
+  }
+  .mod-body {
+    font-size: 11.5px;
+    color: #475569;
+    line-height: 1.5;
+  }
+
+  /* ── PUENTE ── */
+  .puente {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--texto);
+    text-align: center;
+    margin: 6px 0 20px;
+  }
+
+  /* ── TOGGLE ── */
+  .toggle-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+    gap: 0;
+  }
+  .toggle-btn {
+    padding: 8px 24px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    border: 1.5px solid var(--borde);
+    background: #f8fafc;
+    color: var(--muted);
+    transition: all 0.2s ease;
+  }
+  .toggle-btn:first-child { border-radius: 6px 0 0 6px; border-right: none; }
+  .toggle-btn:last-child  { border-radius: 0 6px 6px 0; }
+  .toggle-btn.active-sin {
+    background: #f1f5f9;
+    color: #64748b;
+    border-color: #94a3b8;
+  }
+  .toggle-btn.active-con {
+    background: var(--azul-oscuro);
+    color: var(--acento);
+    border-color: var(--azul-oscuro);
+  }
+
+  /* ── CONTRASTE PANEL ── */
+  .contraste-panel {
+    border: 1px solid var(--borde);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 22px;
+    transition: all 0.3s ease;
+  }
+  .contraste-header {
+    padding: 10px 18px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .panel-sin .contraste-header { background: #f1f5f9; color: #94a3b8; }
+  .panel-con .contraste-header { background: var(--azul-oscuro); color: var(--acento); }
+
+  .contraste-row {
+    padding: 10px 18px;
+    border-top: 1px solid #f1f5f9;
+    font-size: 12px;
+    line-height: 1.45;
+    animation: fadeIn 0.3s ease forwards;
+  }
+  .contraste-row:first-of-type { border-top: none; }
+  .row-dim {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #94a3b8;
+    margin-bottom: 2px;
+  }
+  .panel-con .row-dim { color: var(--azul-medio); }
+  .panel-sin .contraste-row { color: #64748b; }
+  .panel-con .contraste-row { color: var(--texto); font-weight: 500; }
+
+  /* hidden panel */
+  .hidden-panel { display: none; }
+
+  /* ── BOTTOM ── */
+  .bottom {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 24px;
+    align-items: start;
+    margin-top: 6px;
+  }
+  .bullets { display: flex; flex-direction: column; gap: 10px; }
+  .bullet {
+    border-top: 1px solid var(--borde);
+    padding-top: 10px;
+    font-size: 12px;
+    color: #475569;
+    line-height: 1.6;
+  }
+  .bullet strong { font-weight: 700; color: var(--texto); }
+
+  .right-block { text-align: center; min-width: 162px; }
+  .big-stat {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 54px;
+    font-weight: 600;
+    color: var(--texto);
+    line-height: 1;
+  }
+  .big-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--texto);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1.4;
+    margin-bottom: 18px;
+  }
+  .cta-label   { font-size: 13px; font-weight: 700; color: var(--texto); margin-bottom: 3px; }
+  .cta-company { font-size: 12.5px; font-weight: 700; color: var(--texto); margin-bottom: 6px; }
+  .cta-email   { font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+  .cta-tel     { font-size: 12px; color: var(--muted); font-weight: 500; margin-bottom: 10px; }
+
+  .cta-btn {
+    display: inline-block;
+    background: var(--azul-oscuro);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 9px 18px;
+    border-radius: 6px;
+    text-decoration: none;
+    letter-spacing: 0.3px;
+    transition: background 0.2s, transform 0.15s;
+    margin-top: 4px;
+  }
+  .cta-btn:hover {
+    background: var(--azul-medio);
+    transform: translateY(-1px);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    .header, .body { padding-left: 22px; padding-right: 22px; }
+    .header-top { flex-direction: column; gap: 12px; }
+    .propuesta { text-align: left; }
+    .three-grid { grid-template-columns: 1fr; }
+    .modulos-grid { grid-template-columns: 1fr; }
+    .bottom { grid-template-columns: 1fr; }
+    .right-block { text-align: left; }
+  }
+
+  @media print {
+    body { background: white; padding: 0; }
+    .page { box-shadow: none; border-radius: 0; max-width: 100%; }
+    .toggle-wrapper { display: none; }
+    .hidden-panel { display: block !important; }
+    .cta-btn { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header anim">
+    <div class="header-top">
+      <div class="logo-row">
+        <img class="logo-img" src="data:image/jpeg;base64,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" alt="Data AI Logo">
+        <div>
+          <div class="logo-title">Plataforma de Inteligencia Electoral</div>
+          <div class="logo-sub">Data & AI Inclusion Technologies</div>
+        </div>
+      </div>
+      <div class="propuesta">
+        <div class="propuesta-label">Propuesta para</div>
+        <div class="propuesta-nombre">Alan Rentería<br>Puerto Peñasco, Sonora</div>
+      </div>
+    </div>
+    <div class="intro-hook">
+      Tu operación de campo levanta contactos todos los días.<br>
+      <strong>Nosotros convertimos esos contactos en inteligencia y acción.</strong>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="body">
+
+    <div class="intro-bold anim anim-delay-1">
+      Inicia tu campaña construyendo un sistema de datos e inteligencia.<br>
+      Convierte toda la información en acción y movilización.
+    </div>
+
+    <p class="intro-body anim anim-delay-2">
+      Inicia conociendo dónde estás: una encuesta con la misma rigurosidad técnica de las casas nacionales, pero con 70% menos inversión. Usa esos datos para identificar las secciones donde viven los indecisos y los ciudadanos que definen la elección. Dirige tu operación de campo ahí, levanta contactos con nuestra app, y convierte cada salida de brigada en inteligencia acumulada que crece semana a semana. Eso es la <strong>Plataforma de Inteligencia Electoral para Puerto Peñasco (PIE-PP)</strong>: un sistema vivo que dirige a tus brigadistas a donde más importa, segmenta a cada contacto y le asigna el mensaje correcto según su perfil.
+    </p>
+
+    <p class="tagline anim anim-delay-3">De la intuición a la inteligencia. Cada semana de campo es una semana de ventaja.</p>
+
+    <!-- 3 CARDS -->
+    <div class="three-grid">
+      <div class="card anim anim-delay-1">
+        <div class="card-title">Datos propios.</div>
+        <div class="card-body">Encuestas diseñadas para Puerto Peñasco. Padrón levantado por tus brigadas. Análisis específico de tu municipio.</div>
+        <div class="card-detail">La inteligencia que construyes en abril vale más en junio que cualquier encuesta que compres en mayo. Es tuya y se queda contigo.</div>
+      </div>
+      <div class="card anim anim-delay-2">
+        <div class="card-title">Operación activada.<br>Cada brigada cuenta.</div>
+        <div class="card-body">Cada jornada de campo construye el padrón. Cada contacto levantado tiene segmento, canal y mensaje asignado.</div>
+        <div class="card-detail">El sistema dirige la operación, no la reporta después. Tus brigadistas saben exactamente a dónde ir cada semana.</div>
+      </div>
+      <div class="card anim anim-delay-3">
+        <div class="card-title">Decisiones en tiempo real.<br>No en el siguiente corte.</div>
+        <div class="card-body">El sistema vive y crece con cada salida de campo. Las decisiones se toman con el dato de hoy.</div>
+        <div class="card-detail">No con la intuición de ayer. Alan y Adrián ven lo mismo en pantalla. La decisión se toma en minutos, no en reuniones.</div>
+      </div>
+    </div>
+
+    <!-- MÓDULOS -->
+    <div class="section-title anim anim-delay-1">Módulos de la plataforma</div>
+    <div class="modulos-grid">
+
+      <div class="modulo anim anim-delay-2">
+        <div class="mod-screen">
+          <div class="s-bar s-a"></div>
+          <div class="s-bar s-m"></div>
+          <div class="s-bar s-s"></div>
+          <div class="s-dots">
+            <div class="s-dot s-r"></div><div class="s-dot s-r"></div>
+            <div class="s-dot s-b"></div><div class="s-dot s-g"></div>
+          </div>
+        </div>
+        <div>
+          <div class="mod-tag">M1 · Mapa Territorial</div>
+          <div class="mod-title">¿A dónde voy primero?</div>
+          <div class="mod-body">Secciones ordenadas por prioridad. Combina historial electoral, demografía y perfil del votante. Cada hora de campo va donde más retorno tiene.</div>
+        </div>
+      </div>
+
+      <div class="modulo anim anim-delay-3">
+        <div class="mod-screen">
+          <div class="s-bar s-a"></div>
+          <div class="s-bar" style="width:75%;height:5px;border-radius:2px;background:#007cab;opacity:0.55"></div>
+          <div class="s-dots" style="margin-top:4px">
+            <div class="s-dot s-g"></div><div class="s-dot s-g"></div>
+            <div class="s-dot s-y"></div><div class="s-dot s-r"></div>
+          </div>
+          <div class="s-bar s-s" style="margin-top:2px"></div>
+        </div>
+        <div>
+          <div class="mod-tag">M2 · Avance Operativo</div>
+          <div class="mod-title">¿Cómo vamos en campo?</div>
+          <div class="mod-body">Seguimiento en tiempo real del avance de brigadas. Alertas automáticas de zonas sin cobertura para redirigir recursos donde se necesitan.</div>
+        </div>
+      </div>
+
+      <div class="modulo anim anim-delay-4">
+        <div class="mod-screen">
+          <div class="s-bar s-a"></div>
+          <div class="s-bars-mini" style="margin-top:4px">
+            <div class="s-bm" style="height:20px;background:#1a7a4a;opacity:0.75"></div>
+            <div class="s-bm" style="height:13px;background:#007cab;opacity:0.75"></div>
+            <div class="s-bm" style="height:17px;background:#d97706;opacity:0.75"></div>
+            <div class="s-bm" style="height:9px;background:#94a3b8;opacity:0.75"></div>
+          </div>
+        </div>
+        <div>
+          <div class="mod-tag">M3 · Perfil del Votante</div>
+          <div class="mod-title">¿Con quién hablo?</div>
+          <div class="mod-body">Segmentación operativa: Multiplicadores, Activación, Persuasión, Primer Contacto. Cada segmento con su instrucción y su mensaje tipo.</div>
+        </div>
+      </div>
+
+      <div class="modulo anim anim-delay-5">
+        <div class="mod-screen">
+          <div class="s-bar s-a"></div>
+          <div class="s-bar s-m" style="margin-top:3px"></div>
+          <div class="s-bar s-s"></div>
+          <div style="display:flex;gap:3px;margin-top:4px">
+            <div style="padding:2px 4px;background:#007cab;border-radius:2px;font-size:7px;color:white;font-family:monospace;line-height:1">SMS</div>
+            <div style="padding:2px 4px;background:#1a7a4a;border-radius:2px;font-size:7px;color:white;font-family:monospace;line-height:1">WA</div>
+            <div style="padding:2px 4px;background:#64748b;border-radius:2px;font-size:7px;color:white;font-family:monospace;line-height:1">EMAIL</div>
+          </div>
+        </div>
+        <div>
+          <div class="mod-tag">M5 · Base de Contactos</div>
+          <div class="mod-title">¿A quién activo y cómo?</div>
+          <div class="mod-body">Padrón segmentado con canal asignado. Cada contacto tiene su mensaje tipo listo para SMS, WhatsApp o correo. El campo construye — la PIE-PP activa.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- PUENTE + TOGGLE -->
+    <p class="puente anim anim-delay-1">La diferencia no está en tener datos — está en qué haces con ellos.</p>
+
+    <div class="toggle-wrapper anim anim-delay-2">
+      <button class="toggle-btn active-sin" id="btn-sin" onclick="showPanel('sin')">Sin PIE-PP</button>
+      <button class="toggle-btn" id="btn-con" onclick="showPanel('con')">Con PIE-PP</button>
+    </div>
+
+    <!-- PANEL SIN -->
+    <div class="contraste-panel panel-sin" id="panel-sin">
+      <div class="contraste-header">Sin PIE-PP — operación por intuición</div>
+      <div class="contraste-row"><div class="row-dim">Prioridad territorial</div>¿A dónde mando las brigadas? — por experiencia y referencia</div>
+      <div class="contraste-row"><div class="row-dim">Cobertura de campo</div>Nadie sabe exactamente cuántas casas se tocaron esta semana</div>
+      <div class="contraste-row"><div class="row-dim">Perfil del votante</div>"El peñasquense es así" — generalizaciones sin dato propio</div>
+      <div class="contraste-row"><div class="row-dim">Activación digital</div>Lista en Excel · sin segmentación · sin mensaje definido</div>
+      <div class="contraste-row"><div class="row-dim">Toma de decisiones</div>Reunión con impresiones subjetivas del fin de semana</div>
+    </div>
+
+    <!-- PANEL CON -->
+    <div class="contraste-panel panel-con hidden-panel" id="panel-con">
+      <div class="contraste-header">Con PIE-PP — operación con inteligencia</div>
+      <div class="contraste-row"><div class="row-dim">Prioridad territorial</div>Cada sección ordenada por prioridad · historial electoral + demografía</div>
+      <div class="contraste-row"><div class="row-dim">Cobertura de campo</div>Contactos por sección en tiempo real · alertas de zonas sin operativo</div>
+      <div class="contraste-row"><div class="row-dim">Perfil del votante</div>Segmentos identificados con dato propio · mensaje tipo · canal asignado</div>
+      <div class="contraste-row"><div class="row-dim">Activación digital</div>Padrón segmentado · WhatsApp / SMS listos desde la plataforma</div>
+      <div class="contraste-row"><div class="row-dim">Toma de decisiones</div>Dashboard con dato de hoy · Alan y Adrián ven lo mismo · decisión en minutos</div>
+    </div>
+
+    <!-- BOTTOM -->
+    <div class="bottom">
+      <div class="bullets anim anim-delay-1">
+        <div class="bullet"><strong>OPERA CON DATOS PROPIOS.</strong> No dependes de lo que te dice la encuestadora estatal. Cada semana de campo genera tu propio mapa de cobertura, tus propios segmentos y tu propio padrón activable.</div>
+        <div class="bullet"><strong>TU INVERSIÓN SE ACUMULA.</strong> Cada contacto levantado queda en el sistema. El padrón crece con cada salida. No te entregamos un reporte — te entregamos una ventaja que se compone semana a semana.</div>
+        <div class="bullet" style="font-weight:600;color:#1a2535;font-style:italic;border-top-color:#007cab">Tu campaña no empieza el día que arrancas las brigadas. Empieza el día que tienes inteligencia para dirigirlas.</div>
+      </div>
+
+      <div class="right-block anim anim-delay-2">
+        <div class="big-stat">70%</div>
+        <div class="big-label">MENOS INVERSIÓN<br>EN LEVANTAMIENTOS</div>
+        <div class="cta-label">Agenda un demo</div>
+        <div class="cta-company">Data & AI Inclusion Tech</div>
+        <div class="cta-email">omar.tellez@socialinclusiontech.com</div>
+        <div class="cta-tel">552885-6227</div>
+        <a class="cta-btn" href="https://wa.me/525528856227?text=Hola%2C%20me%20interesa%20conocer%20más%20sobre%20la%20PIE-PP%20para%20Puerto%20Peñasco" target="_blank">Escríbenos en WhatsApp ↗</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ── TOGGLE SIN / CON ──
+  function showPanel(which) {
+    const sinPanel = document.getElementById('panel-sin');
+    const conPanel = document.getElementById('panel-con');
+    const btnSin   = document.getElementById('btn-sin');
+    const btnCon   = document.getElementById('btn-con');
+
+    if (which === 'sin') {
+      sinPanel.classList.remove('hidden-panel');
+      conPanel.classList.add('hidden-panel');
+      btnSin.classList.add('active-sin');
+      btnSin.classList.remove('active-con');
+      btnCon.classList.remove('active-sin', 'active-con');
+    } else {
+      conPanel.classList.remove('hidden-panel');
+      sinPanel.classList.add('hidden-panel');
+      btnCon.classList.add('active-con');
+      btnCon.classList.remove('active-sin');
+      btnSin.classList.remove('active-sin', 'active-con');
+    }
+  }
+
+  // ── SCROLL ANIMATIONS ──
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.anim').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
